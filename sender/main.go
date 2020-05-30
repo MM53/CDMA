@@ -1,4 +1,4 @@
-package sender
+package main
 
 import (
 	"bufio"
@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	client := types.NewClient(1)
+	client := types.NewClient([8]int8{-1, -1, -1, +1, +1, -1, +1, +1})
 	message := client.EncodeMessage([]byte("Hello World"))
 	fmt.Println(string(client.DecodeMessage(message)))
 }

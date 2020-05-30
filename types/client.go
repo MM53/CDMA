@@ -1,22 +1,22 @@
 package types
 
 type Client struct {
-	chipSequence byte
+	chipSequence *Chip
 }
 
-func NewClient(chipSequence byte) *Client {
-	return &Client{chipSequence: chipSequence}
+func NewClient(chipSequence [ChipLength]int8) *Client {
+	return &Client{chipSequence: &Chip{chipSequence}}
 }
 
-func (client *Client) EncodeMessage(message []byte) []byte {
-	var encodedMessage []byte
+func (client *Client) EncodeMessage(message []byte) []int8 {
+	var encodedMessage []int8
 	for _, byteValue := range message {
 		mask := byte(128)
 		for i := 0; i < 8; i++ {
 			if (byteValue & mask) != 0 {
-				encodedMessage = append(encodedMessage, client.chipSequence)
+				encodedMessage = append(encodedMessage, client.chipSequence.bits[0:8]...)
 			} else {
-				encodedMessage = append(encodedMessage, ^client.chipSequence)
+				encodedMessage = append(encodedMessage, client.chipSequence.Invert().bits[0:8]...)
 			}
 			mask = mask >> 1
 		}
@@ -24,19 +24,14 @@ func (client *Client) EncodeMessage(message []byte) []byte {
 	return encodedMessage
 }
 
-func (client *Client) DecodeMessage(message []byte) []byte {
+func (client *Client) DecodeMessage(message []int8) []byte {
 	var decodedMessage []byte
-	currentByte := byte(0)
-	for i, byteValue := range message {
-		if (byteValue ^ client.chipSequence) == 0 {
-			currentByte += byte(1)
-		}
+	for byteIndex := 0; byteIndex < len(message); byteIndex += 64 {
+		if byteIndex+63 < len(message) {
+			encodedByte := EncodedByteFromBytes(message[byteIndex : byteIndex+64])
+			msg := client.chipSequence.extractByte(encodedByte)
+			decodedMessage = append(decodedMessage, msg)
 
-		if ((i + 1) % 8) == 0 {
-			decodedMessage = append(decodedMessage, currentByte)
-			currentByte = byte(0)
-		} else {
-			currentByte = currentByte << 1
 		}
 	}
 	return decodedMessage
