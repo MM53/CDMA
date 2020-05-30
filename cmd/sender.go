@@ -11,6 +11,7 @@ import (
 
 var dataFilePath string
 var receiver string
+var generateChips bool
 
 var senderCmd = &cobra.Command{
 	Use:   "send",
@@ -18,10 +19,17 @@ var senderCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		config := loadConfig()
 		data := []byte{byte(len(config))}
+		hadamardMatrix := types.HadamardMatrix(4)
 
 		messages := make([][]int8, len(config))
 		for i, configEntry := range config {
-			client := types.NewClient(configEntry.ChipSequence)
+			var chipSequence [8]int8
+			if generateChips {
+				copy(chipSequence[:], hadamardMatrix[i])
+			} else {
+				chipSequence = configEntry.ChipSequence
+			}
+			client := types.NewClient(chipSequence)
 			data = append(data, client.ChipAsBytes()...)
 			messages[i] = client.EncodeMessage([]byte(configEntry.Message))
 		}
@@ -41,6 +49,7 @@ func init() {
 
 	senderCmd.Flags().StringVarP(&dataFilePath, "data", "d", "", "Path to file with data to send")
 	senderCmd.Flags().StringVarP(&receiver, "receiver", "r", "", "Address of receiver")
+	senderCmd.Flags().BoolVarP(&generateChips, "generate-chips", "", false, "Address of receiver")
 
 	senderCmd.MarkFlagRequired("receiver")
 }
