@@ -1,4 +1,4 @@
-package cdma
+package types
 
 func CombineMessage(messages ...[]int8) []int8 {
 
