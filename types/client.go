@@ -29,9 +29,12 @@ func (client *Client) DecodeMessage(message []int8) []byte {
 	for byteIndex := 0; byteIndex < len(message); byteIndex += 64 {
 		if byteIndex+63 < len(message) {
 			encodedByte := EncodedByteFromBytes(message[byteIndex : byteIndex+64])
-			msg := client.chipSequence.extractByte(encodedByte)
-			decodedMessage = append(decodedMessage, msg)
-
+			msg, exists := client.chipSequence.extractByte(encodedByte)
+			if exists {
+				decodedMessage = append(decodedMessage, msg)
+			} else {
+				break
+			}
 		}
 	}
 	return decodedMessage

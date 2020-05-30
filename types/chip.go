@@ -8,37 +8,6 @@ type Chip struct {
 
 type EncodedByte [8][ChipLength]int8
 
-func (chip *Chip) Invert() *Chip {
-	var invertedBits [8]int8
-	for i, value := range chip.bits {
-		invertedBits[i] = value * -1
-	}
-	return &Chip{bits: invertedBits}
-}
-
-func (chip *Chip) extractByte(encodedByte *EncodedByte) byte {
-	extractedByte := byte(0)
-	for i, encodedBit := range encodedByte {
-		set, valid := chip.isSet(encodedBit)
-		if set {
-			extractedByte += byte(1) << (7 - i)
-		} else if !valid {
-			return byte(0)
-		}
-	}
-	return extractedByte
-}
-
-func (chip *Chip) isSet(value [ChipLength]int8) (set bool, valid bool) {
-	result := int8(0)
-	for i, chipBit := range chip.bits {
-		result += chipBit * value[i]
-	}
-	result /= int8(len(chip.bits))
-
-	return result == 1, result != 0
-}
-
 func EncodedByteFromBytes(bytes []int8) *EncodedByte {
 	return &EncodedByte{
 		[8]int8{bytes[0], bytes[1], bytes[2], bytes[3], bytes[4], bytes[5], bytes[6], bytes[7]},
@@ -50,4 +19,35 @@ func EncodedByteFromBytes(bytes []int8) *EncodedByte {
 		[8]int8{bytes[48], bytes[49], bytes[50], bytes[51], bytes[52], bytes[53], bytes[54], bytes[55]},
 		[8]int8{bytes[56], bytes[57], bytes[58], bytes[59], bytes[60], bytes[61], bytes[62], bytes[63]},
 	}
+}
+
+func (chip *Chip) Invert() *Chip {
+	var invertedBits [8]int8
+	for i, value := range chip.bits {
+		invertedBits[i] = value * -1
+	}
+	return &Chip{bits: invertedBits}
+}
+
+func (chip *Chip) extractByte(encodedByte *EncodedByte) (byte, bool) {
+	extractedByte := byte(0)
+	for i, encodedBit := range encodedByte {
+		set, valid := chip.isSet(encodedBit)
+		if set {
+			extractedByte += byte(1) << (7 - i)
+		} else if !valid {
+			return byte(0), false
+		}
+	}
+	return extractedByte, true
+}
+
+func (chip *Chip) isSet(value [ChipLength]int8) (set bool, valid bool) {
+	result := int8(0)
+	for i, chipBit := range chip.bits {
+		result += chipBit * value[i]
+	}
+	result /= int8(len(chip.bits))
+
+	return result == 1, result != 0
 }
