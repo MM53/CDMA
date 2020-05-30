@@ -1,2 +1,6 @@
+# ignore IntelliJ files
 .idea
 *.iml
+
+# ignore binary
+cdma
