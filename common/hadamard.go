@@ -1,4 +1,4 @@
-package types
+package common
 
 func HadamardMatrix(order int) [][]int8 {
 	if order == 1 {

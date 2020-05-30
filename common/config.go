@@ -1,4 +1,4 @@
-package types
+package common
 
 type Config []struct {
 	ChipSequence [ChipLength]int8 `yaml:"chip"`

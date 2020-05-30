@@ -1,4 +1,4 @@
-package types
+package common
 
 func CombineMessage(messages ...[]int8) []int8 {
 

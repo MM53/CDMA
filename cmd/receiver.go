@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"bufio"
-	"cdma/types"
+	"cdma/common"
 	"fmt"
 	"github.com/spf13/cobra"
 	"io"
@@ -37,7 +37,7 @@ func openConnection(ln net.Listener) {
 
 	var clientCount int
 	clientIndex := 1
-	var clients []*types.Client
+	var clients []*common.Client
 	var chipSequence [8]int8
 	chipSequenceIndex := 0
 	var combinedMessages []int8
@@ -57,7 +57,7 @@ func openConnection(ln net.Listener) {
 
 		if clientCount == 0 {
 			clientCount = int(readByte)
-			clients = make([]*types.Client, clientCount)
+			clients = make([]*common.Client, clientCount)
 			clientIndex = 0
 			fmt.Printf("Got new connection with %d clients\n", clientCount)
 			printSpacer()
@@ -69,7 +69,7 @@ func openConnection(ln net.Listener) {
 		}
 
 		if chipSequenceIndex == 8 {
-			clients[clientIndex] = types.NewClient(chipSequence)
+			clients[clientIndex] = common.NewClient(chipSequence)
 			fmt.Printf("Got chip of client %d: %v\n", clientIndex, chipSequence)
 			printSpacer()
 			chipSequenceIndex = 0
@@ -86,7 +86,7 @@ func init() {
 	receiveCmd.MarkFlagRequired("port")
 }
 
-func printMessages(clients []*types.Client, combinedMessages []int8) {
+func printMessages(clients []*common.Client, combinedMessages []int8) {
 	for i, client := range clients {
 		fmt.Printf("Client %d: %s\n", i, string(client.DecodeMessage(combinedMessages)))
 	}

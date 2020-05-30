@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"cdma/types"
+	"cdma/common"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -19,7 +19,7 @@ var senderCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		config := loadConfig()
 		data := []byte{byte(len(config))}
-		hadamardMatrix := types.HadamardMatrix(4)
+		hadamardMatrix := common.HadamardMatrix(4)
 
 		messages := make([][]int8, len(config))
 		for i, configEntry := range config {
@@ -29,13 +29,13 @@ var senderCmd = &cobra.Command{
 			} else {
 				chipSequence = configEntry.ChipSequence
 			}
-			client := types.NewClient(chipSequence)
+			client := common.NewClient(chipSequence)
 			data = append(data, client.ChipAsBytes()...)
 			messages[i] = client.EncodeMessage([]byte(configEntry.Message))
 		}
 
-		combinedMessage := types.CombineMessage(messages...)
-		data = append(data, types.ConvertToByteStream(combinedMessage)...)
+		combinedMessage := common.CombineMessage(messages...)
+		data = append(data, common.ConvertToByteStream(combinedMessage)...)
 
 		err := sendData(data)
 		if err != nil {
@@ -54,12 +54,12 @@ func init() {
 	senderCmd.MarkFlagRequired("receiver")
 }
 
-func loadConfig() types.Config {
+func loadConfig() common.Config {
 	dat, err := ioutil.ReadFile(dataFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
-	var config types.Config
+	var config common.Config
 	err = yaml.Unmarshal(dat, &config)
 	if err != nil {
 		log.Fatal(err)
