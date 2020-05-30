@@ -17,7 +17,9 @@ var (
 
 var senderCmd = &cobra.Command{
 	Use:   "send",
-	Short: "",
+	Short: "Send messages.",
+	Long: `Send messages read from a configuration file. This file must be a .yaml.
+Make sure to start the receiver first with another instance of this program.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		config := loadConfig()
 		data := []byte{byte(len(config))}

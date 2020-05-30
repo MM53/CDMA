@@ -14,7 +14,9 @@ var port string
 
 var receiveCmd = &cobra.Command{
 	Use:   "receive",
-	Short: "",
+	Short: "Listen for messages.",
+	Long: `Listen for messages.
+Incoming messages will start with the number of clients followed by the chip-sequence for the clients and then the real content.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		ln, err := net.Listen("tcp", ":"+port)
 		if err != nil {
