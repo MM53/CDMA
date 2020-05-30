@@ -8,6 +8,10 @@ func NewClient(chipSequence [ChipLength]int8) *Client {
 	return &Client{chipSequence: &Chip{chipSequence}}
 }
 
+func (client *Client) ChipAsBytes() []byte {
+	return ConvertToByteStream(client.chipSequence.bits[:])
+}
+
 func (client *Client) EncodeMessage(message []byte) []int8 {
 	var encodedMessage []int8
 	for _, byteValue := range message {

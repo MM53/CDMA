@@ -1,8 +1,6 @@
 package main
 
-import (
-	"cdma/cmd"
-)
+import "cdma/cmd"
 
 func main() {
 	cmd.Execute()

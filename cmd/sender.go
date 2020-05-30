@@ -1,9 +1,7 @@
 package cmd
 
 import (
-	"bufio"
 	"cdma/types"
-	"fmt"
 	"github.com/spf13/cobra"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
@@ -19,16 +17,21 @@ var senderCmd = &cobra.Command{
 	Short: "",
 	Run: func(cmd *cobra.Command, args []string) {
 		config := loadConfig()
+		data := []byte{byte(len(config))}
+
 		messages := make([][]int8, len(config))
 		for i, configEntry := range config {
 			client := types.NewClient(configEntry.ChipSequence)
+			data = append(data, client.ChipAsBytes()...)
 			messages[i] = client.EncodeMessage([]byte(configEntry.Message))
 		}
-		combinedMessage := types.CombineMessage(messages...)
 
-		for _, configEntry := range config {
-			client := types.NewClient(configEntry.ChipSequence)
-			fmt.Println(string(client.DecodeMessage(combinedMessage)))
+		combinedMessage := types.CombineMessage(messages...)
+		data = append(data, types.ConvertToByteStream(combinedMessage)...)
+
+		err := sendData(data)
+		if err != nil {
+			log.Fatal(err)
 		}
 	},
 }
@@ -56,22 +59,20 @@ func loadConfig() types.Config {
 }
 
 func sendData(data []byte) error {
-	// connect to this socket
-	conn, err := net.Dial("tcp", "127.0.0.1:8081")
+	conn, err := net.Dial("tcp", receiver)
 	if err != nil {
 		return err
 	}
-	// send to socket
+
 	_, err = conn.Write(data)
 	if err != nil {
 		return err
 	}
-	// listen for reply
-	message, err := bufio.NewReader(conn).ReadString('\n')
+
+	err = conn.Close()
 	if err != nil {
 		return err
 	}
-	fmt.Print("Message from server: " + message)
 
 	return nil
 }

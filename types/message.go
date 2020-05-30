@@ -18,6 +18,14 @@ func CombineMessage(messages ...[]int8) []int8 {
 	return combinedMessage
 }
 
+func ConvertToByteStream(message []int8) []byte {
+	convertedMessage := make([]byte, len(message))
+	for i, element := range message {
+		convertedMessage[i] = byte(element)
+	}
+	return convertedMessage
+}
+
 func max(x, y int) int {
 	if x < y {
 		return y
