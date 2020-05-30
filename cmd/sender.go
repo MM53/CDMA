@@ -9,9 +9,11 @@ import (
 	"net"
 )
 
-var dataFilePath string
-var receiver string
-var generateChips bool
+var (
+	dataFilePath  string
+	receiver      string
+	generateChips bool
+)
 
 var senderCmd = &cobra.Command{
 	Use:   "send",
@@ -49,7 +51,7 @@ func init() {
 
 	senderCmd.Flags().StringVarP(&dataFilePath, "data", "d", "", "Path to file with data to send")
 	senderCmd.Flags().StringVarP(&receiver, "receiver", "r", "", "Address of receiver")
-	senderCmd.Flags().BoolVarP(&generateChips, "generate-chips", "", false, "Address of receiver")
+	senderCmd.Flags().BoolVar(&generateChips, "generate-chips", false, "Use new generated chip sequences instead of the ones from the config file")
 
 	senderCmd.MarkFlagRequired("receiver")
 }
